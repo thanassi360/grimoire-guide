@@ -6,4 +6,4 @@ This version has:
 - Server synchronisation from the Bungie.net Grimoire database via the API
 - Storage of the Grimoire database to a Google App Engine Python server
 - jQuery AJAX interaction with the Python server to get the Grimoire data
- -HTML and CSS to display the Grimoire data in the browser
+- HTML and CSS to display the Grimoire data in the browser
