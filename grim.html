@@ -106,7 +106,7 @@
             else{
                 console.log(data.data);
                 $.each(data.data, function(k,v){
-                    $('#cardGuide').append('<p><b>'+ v.user+': </b>'+ v.guide+'</p><a href="'+url+'">Youtube video</a><hr><br>');
+                    $('#cardGuide').append('<p><b>'+ v.user+': </b>'+ v.guide+'</p><a href="'+v.url+'">Youtube video</a><hr><br>');
                 })
             }
         }
