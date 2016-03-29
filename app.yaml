@@ -1,0 +1,34 @@
+application: grimoire-guide
+version: alpha-1
+runtime: python27
+api_version: 1
+threadsafe: yes
+
+handlers:
+- url: /
+  static_files: grim.html
+  upload: grim.html
+  mime_type: "text/html"
+
+- url: /js
+  static_dir: js
+  mime_type: "text/js"
+
+- url: /css
+  static_dir: css
+  mime_type: "text/css"
+
+- url: /images
+  static_dir: images
+  mime_type: "image/png"
+
+- url: /favicon\.ico
+  static_files: favicon.ico
+  upload: favicon\.ico
+
+- url: .*
+  script: main.app
+
+libraries:
+- name: webapp2
+  version: "2.5.2"

@@ -1,0 +1,12 @@
+cron:
+- description: check collections every day
+  url: /getcollections
+  schedule: every day 00:00
+
+- description: check sets every day
+  url: /getsets
+  schedule: every day 00:05
+
+- description: check cards every day
+  url: /getcards
+  schedule: every day 00:10

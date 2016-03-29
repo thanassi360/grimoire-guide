@@ -1,0 +1,131 @@
+body{
+    background-image: url('../images/traveler.jpg');
+    background-position: 20% 15%;
+    font-family: sans-serif;
+    background-attachment: fixed;
+}
+#wrapper{
+    margin:auto;
+    width:1000px;
+    min-height: 1000px;
+}
+h2{
+    margin:0;
+    margin-bottom: 10px;
+    color: white;
+}
+#collection, #set, #card{
+    width:1000px;
+    margin:auto;
+}
+#collection{
+    margin-top: 70px;
+    position: relative;
+    z-index: 900;
+    top: -150px;
+}
+.collection, .set, .card{
+    border:2px solid black;
+    height:83px;
+    width:83px;
+    margin-right:10px;
+    margin-bottom:10px;
+    display:inline-block;
+    transition:all .1s ease-in-out;
+    border-radius:5px;
+    zoom: 1.2;
+    box-shadow: 0 0 7px #fff;
+}
+.collection:hover, .set:hover, .card:hover{
+    transform:scale(1.1);
+}
+#cardView{
+    width:950px;
+    min-height:419px;
+    margin:auto;
+}
+#cardImg{
+    float:left;
+    height:419px;
+    width:323px;
+    border-radius: 10px;
+}
+#cardText{
+    float:left;
+    padding: 0 10px 0 10px;
+    height:419px;
+    width:585px;
+    margin-left:10px;
+    overflow: auto;
+    background-color: rgba(255,255,255,0.6);
+}
+#cardGuide{
+    width: 918px;
+    padding: 10px;
+    min-height: 50px;
+    background-color: rgba(255,255,255,0.6);
+    float: left;
+    margin-top: 20px;
+}
+.tooltip .tooltiptext {
+    visibility: hidden;
+    width: 120px;
+    background-color: black;
+    color: #fff;
+    text-align: center;
+    border-radius: 6px;
+    padding: 5px 0;
+    position: absolute;
+    z-index: 1;
+    top: 115%;
+    left: 50%;
+    margin-left: -60px;
+}
+.tooltip .tooltiptext::after {
+    content: "";
+    position: absolute;
+    bottom: 100%;
+    left: 50%;
+    margin-left: -5px;
+    border-width: 5px;
+    border-style: solid;
+    border-color: transparent transparent black transparent;
+}
+.tooltip:hover .tooltiptext {
+    visibility: visible;
+}
+#nav{
+    width: 1050px;
+    height: 55px;
+    color: white;
+    margin-left: -25px;
+    background: black;
+    top: 0;
+    position: fixed;
+    box-shadow: 0 0 7px #fff;
+    z-index: 1000;
+}
+#navTitle{
+    display: inline-block;
+    margin-left: 19px;
+    margin-top: 5px;
+    font-size: 35px;
+}
+#navLogin{
+    display: inline-block;
+    float: right;
+    font-size: 23px;
+    border-left: 1px solid white;
+    padding: 14px 20px 14px 20px;
+}
+#navLogin .tooltiptext{
+    left: 95%;
+    font-size: 17px;
+}
+#colh2, #seth2, #cardh2{
+    width: 100%;
+    text-align: center;
+}
+#login{
+    color: white;
+}

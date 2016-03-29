@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Grimoire</title>
+    <script src="js/jquery-1.12.1.js"></script>
+    <script src="js/url.js"></script>
+    <link href="css/style.css" rel="stylesheet">
+</head>
+<body>
+    <div id="wrapper">
+        <div id="nav">
+            <div id="navTitle">Grimoire Guide</div>
+            <div id="navLogin" class="tooltip">
+                Login<div class="tooltiptext">Click to login</div>
+            </div>
+        </div>
+        <div id="collection">
+        </div>
+        <div id="set">
+        </div>
+        <div id="card">
+        </div>
+        <div id="viewCard">
+        </div>
+    </div>
+    <script>
+        $bungie = "http://www.bungie.net";
+        $collection = $('#collection');
+        $set = $('#set');
+        $card = $('#card');
+        $viewCard = $('#viewCard');
+        $carddata = [];
+        var delay = 500;
+        var zoom = 0.7;
+
+        $(document).ready(function() {
+            getGrim('GET', 'grim', '');
+        });
+
+        function getGrim(method, url, data){
+            $.ajax({
+                type: method,
+                url: $url + url,
+                async: true,
+                data: data,
+                contentType: "application/json",
+                dataType: 'json',
+                success: function(json) {
+                    display(json);
+                },
+                error: function(e) {
+                    console.log(e);
+                }
+            });
+        }
+
+        function display(data){
+            if(data.type == 'collectionfeed'){
+                $.each(data.data, function(k,v){
+                    $collection.append('' +
+                            '<div onclick="collectionPick(this.id)" ' +
+                            'class="collection tooltip" id="'+v.name+'" ' +
+                            'style="background: url('+$bungie+v.img+') ' +
+                            '-'+v.x+'px -'+v.y+'px;">' +
+                            '<div class="tooltiptext"> '+v.name+' </div></div>');
+                });
+            $collection.fadeIn(delay);
+            $collection.animate({top:"0px"},1000);
+            setTimeout(function() {
+                $collection.append('<h2 id="colh2">Select a Collection to begin</h2>');
+            }, delay+delay);
+            }
+            else if(data.type == 'setfeed'){
+                $.each(data.data, function(k,v){
+                    $set.append('' +
+                            '<div onclick="setPick(this.id)" ' +
+                            'class="set tooltip" id="'+v.shortname+'" ' +
+                            'style="background: url('+$bungie+v.img+') ' +
+                            '-'+v.x+'px -'+v.y+'px;">' +
+                            '<div class="tooltiptext"> '+v.name+' </div></div>');
+                });
+                $set.append('<h2 id="seth2">Select a Set</h2>');
+            }
+            else if(data.type == 'cardfeed'){
+                $carddata = [];
+                $.each(data.data, function(k,v){
+                    $card.append('' +
+                            '<div onclick="cardPick(this.id)" ' +
+                            'class="card tooltip" id="'+v.cardid+'" ' +
+                            'style="background: url('+$bungie+v.icon+') ' +
+                            '-'+v.iconx+'px -'+v.icony+'px;">' +
+                            '<div class="tooltiptext"> '+v.name+' </div></div>');
+                    carddetails = {};
+                    carddetails ['id'] = v.cardid;
+                    carddetails ['img'] = v.img;
+                    carddetails ['x'] = v.x;
+                    carddetails ['y'] = v.y;
+                    carddetails ['body'] = v.body;
+                    carddetails ['quote'] = v.quote;
+                    carddetails ['name'] = v.name;
+                    $carddata.push(carddetails);
+                });
+                $card.append('<h2 id="cardh2">Select a Card</h2>');
+            }
+            else{
+                console.log(data.data);
+                $.each(data.data, function(k,v){
+                    $('#cardGuide').append('<p><b>'+ v.user+': </b>'+ v.guide+'</p><a href="'+url+'">Youtube video</a><hr><br>');
+                })
+            }
+        }
+
+        function collectionPick(name){
+            $set.empty();
+            $card.empty();
+            $viewCard.empty();
+            $('#colh2').fadeOut(delay);
+            $(".collection").animate({zoom:zoom},delay);
+            setTimeout(function() {
+                url = "set";
+                getGrim("POST", url, name);
+            }, delay);
+        }
+        function setPick(name){
+            $card.empty();
+            $viewCard.empty();
+            $('#seth2').fadeOut(delay);
+            $(".set").animate({zoom:zoom},delay);
+            setTimeout(function() {
+                url = "card";
+                getGrim("POST", url, name);
+            }, delay);
+        }
+        function cardPick(name){
+            $viewCard.empty();
+            $('#cardh2').fadeOut(delay);
+            $(".card").animate({zoom:zoom},delay);
+            setTimeout(function() {
+                var result = $.grep($carddata, function(e){ return e.id == name; })[0];
+                $viewCard.append('' +
+                    '<div id="cardImg" style="background: url('+$bungie+result.img+') -'+result.x+'px -'+result.y+'px;">' +
+                    '</div><div id="cardText"><h1>'+result.name+'</h1><blockquote>'+result.quote+'</blockquote>' +
+                    '<p>'+result.body+'</p></div><div id="cardGuide"></div>');
+                url = "cardview";
+                setTimeout(function() {
+                    getGrim("POST", url, name)
+                }, delay);
+            }, delay);
+        }
+
+
+            /*
+            $('#seth2').fadeOut(delay);
+            $('#cardh2').fadeOut(delay);
+            $(".setdiv").fadeOut(delay);
+            $(".carddiv").fadeOut(delay);
+            $(".cardView").fadeOut(delay);
+
+            $set.fadeIn(delay);
+            $card.fadeOut(delay);
+            $(".collectionHead").animate({fontSize:"24"});
+            $n = $("#"+name.id+"Div");
+            setTimeout(function() {
+                $(".set").css("zoom","1.2");
+                $n.fadeIn(delay);
+                $('#seth2').fadeIn(delay);
+            }, delay+100);
+        }
+
+        function setPick(name){
+            $('#seth2').fadeOut(delay);
+            $('#cardh2').fadeOut(delay);
+            $(".carddiv").fadeOut(delay);
+            $(".cardView").fadeOut(delay);
+            $(".set").animate({zoom:"0.8"});
+            $card.fadeIn(delay);
+            $n = $("#"+name.id+"Div");
+            $(".collectionHead").animate({fontSize:"0"});
+            $(".setHead").animate({fontSize:"24"});
+            setTimeout(function() {
+                $(".card").css("zoom","1.2");
+                $n.fadeIn(delay);
+                $('#cardh2').fadeIn(delay);
+            }, delay+100);
+
+        }
+
+        function cardPick(name){
+            $('#cardh2').fadeOut(delay);
+            $('.cardView').fadeOut(delay);
+            $(".card").animate({zoom:"0.8"});
+            $viewCard.fadeIn(delay);
+            $n = $("#"+name+"Wrap");
+            $(".setHead").animate({fontSize:"0"});
+            setTimeout(function() {
+                $n.fadeIn(delay);
+            }, delay+100);
+        }
+        */
+
+    </script>
+</body>
+</html>
