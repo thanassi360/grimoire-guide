@@ -122,7 +122,8 @@
                 getGrim("POST", url, name);
             }, delay);
         }
-        function setPick(name){
+        
+		function setPick(name){
             $card.empty();
             $viewCard.empty();
             $('#seth2').fadeOut(delay);
@@ -132,6 +133,7 @@
                 getGrim("POST", url, name);
             }, delay);
         }
+		
         function cardPick(name){
             $viewCard.empty();
             $('#cardh2').fadeOut(delay);
@@ -148,57 +150,7 @@
                 }, delay);
             }, delay);
         }
-
-
-            /*
-            $('#seth2').fadeOut(delay);
-            $('#cardh2').fadeOut(delay);
-            $(".setdiv").fadeOut(delay);
-            $(".carddiv").fadeOut(delay);
-            $(".cardView").fadeOut(delay);
-
-            $set.fadeIn(delay);
-            $card.fadeOut(delay);
-            $(".collectionHead").animate({fontSize:"24"});
-            $n = $("#"+name.id+"Div");
-            setTimeout(function() {
-                $(".set").css("zoom","1.2");
-                $n.fadeIn(delay);
-                $('#seth2').fadeIn(delay);
-            }, delay+100);
-        }
-
-        function setPick(name){
-            $('#seth2').fadeOut(delay);
-            $('#cardh2').fadeOut(delay);
-            $(".carddiv").fadeOut(delay);
-            $(".cardView").fadeOut(delay);
-            $(".set").animate({zoom:"0.8"});
-            $card.fadeIn(delay);
-            $n = $("#"+name.id+"Div");
-            $(".collectionHead").animate({fontSize:"0"});
-            $(".setHead").animate({fontSize:"24"});
-            setTimeout(function() {
-                $(".card").css("zoom","1.2");
-                $n.fadeIn(delay);
-                $('#cardh2').fadeIn(delay);
-            }, delay+100);
-
-        }
-
-        function cardPick(name){
-            $('#cardh2').fadeOut(delay);
-            $('.cardView').fadeOut(delay);
-            $(".card").animate({zoom:"0.8"});
-            $viewCard.fadeIn(delay);
-            $n = $("#"+name+"Wrap");
-            $(".setHead").animate({fontSize:"0"});
-            setTimeout(function() {
-                $n.fadeIn(delay);
-            }, delay+100);
-        }
-        */
-
+		
     </script>
 </body>
 </html>
