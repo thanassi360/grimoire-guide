@@ -1,5 +1,5 @@
 application: grimoire-guide
-version: alpha-1
+version: beta-1
 runtime: python27
 api_version: 1
 threadsafe: yes
@@ -8,6 +8,16 @@ handlers:
 - url: /
   static_files: grim.html
   upload: grim.html
+  mime_type: "text/html"
+
+- url: /profile
+  static_files: profile.html
+  upload: profile.html
+  mime_type: "text/html"
+
+- url: /loggedin
+  static_files: loggedin.html
+  upload: loggedin.html
   mime_type: "text/html"
 
 - url: /js

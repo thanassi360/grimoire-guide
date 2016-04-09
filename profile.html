@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>User</title>
+    <script src="js/jquery-1.12.1.js"></script>
+    <script src="js/url.js"></script>
+    <link href="css/style.css" rel="stylesheet">
+</head>
+<body onload="profilePage()">
+    <div id="wrapper" style="margin-top: 80px;">
+        <div id="nav">
+            <div id="navTitle">Grimoire Guide</div>
+
+            <div id="navLogout" class="tooltip">
+                Logout
+                <div class="tooltiptext">Click to logout</div>
+            </div>
+            <div id="userDisplay">&nbsp;</div>
+        </div>
+        <div id="userpane">
+
+        </div>
+    </div>
+    <script>
+
+        $(document).ready( function() {
+            $('body').on('click', 'button[name=update-user]', function () {
+                var newName = $("#userName").val();
+                var newGamertag = $("#userGamertag").val();
+                var newPlatfrom = $("#userPlatform").val();
+                var check = function(string) {
+                    return string.indexOf(' ') === -1;
+                };
+                if(check(newName) == false){
+                    alert("No spaces in username please.")
+                }
+                else{
+                    updateUser(newName, newGamertag, newPlatfrom);
+                }
+            });
+        });
+
+        $('#navTitle').click(function(){
+            window.location = $url
+        });
+        $('#navLogout').click(function(){
+            var cookies = document.cookie.split(";");
+            for(var i=0; i < cookies.length; i++) {
+                var equals = cookies[i].indexOf("=");
+                var name = equals > -1 ? cookies[i].substr(0, equals) : cookies[i];
+                document.cookie = name + "=;expires=Thu, 01 Jan 1970 00:00:00 GMT";
+            }
+            window.location.href = $url;
+        });
+
+        $userpane = $('#userpane');
+
+        function profilePage(){
+            $.ajax({
+                type: "GET",
+                url: $url + "login",
+                async: true,
+                contentType: "application/json",
+                dataType: 'json',
+                success: function(json) {
+                    userForm(json);
+                    console.log(json);
+                },
+                error: function(e) {
+                    console.log(e);
+                }
+            });
+        }
+
+        function userForm(data){
+            $userpane.append('<form onsubmit="updateUser()" id="updateUserForm"><table id="userTable">' +
+                    '<tr><td>Username: </td><td><input type="text" id="userName" min="4" max="15" value="'+ data.name +'"></td><td>(<i>4 to 15 characters</i>)</td></tr>' +
+                    '<tr><td>Email: </td><td>'+ data.email +'</td><td>(<i>not visible to public</i>)</td></tr>' +
+                    '<tr><td>Join Date: </td><td>'+ data.joined +'</td></tr>' +
+                    '<tr><td>Gamertag: </td><td><input type="text" id="userGamertag" value="'+ data.gamertag +'"></td></tr>' +
+                    '<tr><td>Platform: </td><td><select id="userPlatform"><option value="None">None</option><option value="xb">Xbox</option><option value="ps">Playstation</option></select></td></tr>' +
+                    '<tr><td>Update: </td><td><button name="update-user" type="button">Confirm</button></td><td id="confirmation"></td></tr>' +
+                    '</table></form>');
+            $('#userPlatform option[value='+ data.platform +']').attr('selected', 'selected');
+            $('#userDisplay').empty().append(data.name);
+        }
+
+        function updateUser(newName, newGamertag, newPlatform){
+            data = JSON.stringify({"name": newName, "gamertag": newGamertag, "platform": newPlatform});
+            $.ajax({
+                type: "POST",
+                url: $url + "update",
+                async: true,
+                data: data,
+                contentType: "application/json",
+                dataType: 'json',
+                success: function(data) {
+                    $("#confirmation").empty().append('<a id="confText">'+data.msg+'</a>');
+                    $('#userDisplay').empty().append(data.user);
+
+                },
+                error: function(e) {
+                    console.log(e);
+                }
+            });
+        }
+    </script>
+</body>
+</html>

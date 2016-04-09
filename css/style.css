@@ -112,13 +112,16 @@ h2{
     font-size: 35px;
 }
 #navLogin{
+    visibility: hidden;
+}
+#navLogin, #navLogout{
     display: inline-block;
     float: right;
     font-size: 23px;
     border-left: 1px solid white;
     padding: 14px 20px 14px 20px;
 }
-#navLogin .tooltiptext{
+#navLogin .tooltiptext, #navLogout .tooltiptext{
     left: 95%;
     font-size: 17px;
 }
@@ -126,6 +129,34 @@ h2{
     width: 100%;
     text-align: center;
 }
-#login{
-    color: white;
+#confText{
+    font-size: 15px;
+    color: #2F00FF;
+    font-style: italic;
+    font-weight: bold;
+}
+#userDisplay{
+    display: inline-block;
+    float: right;
+    font-size: 25px;
+    border-left: 1px solid white;
+    padding: 13px 20px 13px 20px;
+    visibility: hidden;
+}
+#userpane, #welcomepane{
+    background-color: aliceblue;
+    padding: 20px;
+}
+#userpane{
+    font-size: 20px;
+}
+#welcomepane{
+    font-size: 28px;
+}
+input, textarea{
+    width: 270px;
+}
+.pleaseLogIn{
+    width: 100%;
+    text-align: center;
 }
