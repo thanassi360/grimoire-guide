@@ -3,7 +3,7 @@ A University project using an API to synchronise data from Bungie.net to a Googl
 
 ## BETA BUILD
 This version has:
-#### Alpha build
+#### Alpha build features
 - Server synchronisation from the Bungie.net Grimoire database via the API
 - Storage of the Grimoire database to a Google App Engine Python server
 - jQuery AJAX interaction with the Python server to get the Grimoire data
