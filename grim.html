@@ -11,9 +11,8 @@
     <div id="wrapper">
         <div id="nav">
             <div id="navTitle">Grimoire Guide</div>
-            <div id="navLogin" class="tooltip">
-                Login<div class="tooltiptext">Click to login</div>
-            </div>
+            <div id="navLogin" class="tooltip">&nbsp;</div>
+            <div id="userDisplay">&nbsp;</div>
         </div>
         <div id="collection">
         </div>
@@ -25,19 +24,38 @@
         </div>
     </div>
     <script>
-        $bungie = "http://www.bungie.net";
+        $bungie = "https://www.bungie.net";
         $collection = $('#collection');
         $set = $('#set');
         $card = $('#card');
         $viewCard = $('#viewCard');
         $carddata = [];
+        $guidedata = [];
         var delay = 500;
         var zoom = 0.7;
-
+        var log = '';
+        $username = '';
+        $currentcard = '';
+        $currentcardid = '';
+        $('#navLogin').click(function(){
+            window.location = $url+log
+        });
+        $('body').on('click', 'button[name=update-guide]', function () {
+            var guide = $("#guideBody").val();
+            var link = $("#guideLink").val();
+            var check = function(string) {
+                return string.indexOf(' ') === -1;
+            };
+            if(check(link) == false){
+                alert("No spaces in link please.")
+            }
+            else{
+                updateGuide($currentcardid, guide, link);
+            }
+        });
         $(document).ready(function() {
             getGrim('GET', 'grim', '');
         });
-
         function getGrim(method, url, data){
             $.ajax({
                 type: method,
@@ -54,9 +72,19 @@
                 }
             });
         }
-
         function display(data){
             if(data.type == 'collectionfeed'){
+                if(data.name == 'NotLoggedIn'){
+                    $('#navLogin').empty().append('Join/Login<div class="tooltiptext">Click to login</div>').css("visibility","visible");
+                    $username = 'NotUser';
+                    log = "login";
+                }
+                else{
+                    $('#navLogin').empty().append('Edit Profile<div class="tooltiptext">Click to edit profile</div>').css("visibility","visible");
+                    $('#userDisplay').empty().append(data.name).css("visibility","visible");
+                    $username = data.name;
+                    log = "profile";
+                }
                 $.each(data.data, function(k,v){
                     $collection.append('' +
                             '<div onclick="collectionPick(this.id)" ' +
@@ -103,14 +131,46 @@
                 });
                 $card.append('<h2 id="cardh2">Select a Card</h2>');
             }
+            else if(data.status == 'Guide Saved'){
+                $("#confirmation").empty().append('<a id="confText">'+data.status+'</a>');
+            }
             else{
-                console.log(data.data);
-                $.each(data.data, function(k,v){
-                    $('#cardGuide').append('<p><b>'+ v.user+': </b>'+ v.guide+'</p><a href="'+url+'">Youtube video</a><hr><br>');
-                })
+                $guidedata = [];
+                $.each(data, function(k,v){
+                    guilddetails = {};
+                    guilddetails ['id'] = v.id;
+                    guilddetails ['user'] = v.user;
+                    guilddetails ['guide'] = v.content;
+                    guilddetails ['link'] = v.youtube;
+                    guilddetails ['created'] = v.created;
+                    guilddetails ['current'] = v.current;
+                    $guidedata.push(guilddetails);
+                });
+                if($username != 'NotUser'){
+                    form = '<div><form><table><tr><td>Card: </td><td>'+ $currentcard +'</td></tr>' +
+                            '<tr><td>Guide: </td><td><textarea id="guideBody"></textarea></td></tr>' +
+                            '<tr><td>https://youtu.be/</td><td><input type="url" placeholder="YouTube video code" id="guideLink"></td><td><i>eg: w_eAS1RiJk4 (optional)</i></td></tr>' +
+                            '<tr><td>Submit/Update</td><td><button type="button" name="update-guide">Send</button><button type="reset">Reset</button></td><td id="confirmation"></td></tr>' +
+                            '</table></form></div>';
+                    $('#cardGuide').append(form+'<hr>');
+                }
+                else{
+                    $('#cardGuide').append('<div class="pleaseLogIn"><b>Login or register to leave or rate a guide</b></div><br><hr>');
+                }
+                $.each($guidedata, function(k,v){
+                    if(v.current == "true"){
+                        $('#guideBody').val(v.guide);
+                        $('#guideLink').val(v.link);
+                    }
+                    else{
+                        $('#cardGuide').append('<p>'+ v.created+'<br><b>'+ v.user+': </b>'+ v.guide+'</p><a id="'+ v.id +'" href="https://youtu.be/'+ v.link+'">Youtube video</a><hr><br>');
+                        if(v.link == ''){
+                            $('#'+ v.id).css("visibility","hidden");
+                        }
+                    }
+                });
             }
         }
-
         function collectionPick(name){
             $set.empty();
             $card.empty();
@@ -143,62 +203,21 @@
                     '</div><div id="cardText"><h1>'+result.name+'</h1><blockquote>'+result.quote+'</blockquote>' +
                     '<p>'+result.body+'</p></div><div id="cardGuide"></div>');
                 url = "cardview";
+                $currentcard = result.name;
+                $currentcardid = result.id;
                 setTimeout(function() {
-                    getGrim("POST", url, name)
+                    showGuides("POST", url, name)
                 }, delay);
             }, delay);
         }
-
-
-            /*
-            $('#seth2').fadeOut(delay);
-            $('#cardh2').fadeOut(delay);
-            $(".setdiv").fadeOut(delay);
-            $(".carddiv").fadeOut(delay);
-            $(".cardView").fadeOut(delay);
-
-            $set.fadeIn(delay);
-            $card.fadeOut(delay);
-            $(".collectionHead").animate({fontSize:"24"});
-            $n = $("#"+name.id+"Div");
-            setTimeout(function() {
-                $(".set").css("zoom","1.2");
-                $n.fadeIn(delay);
-                $('#seth2').fadeIn(delay);
-            }, delay+100);
+        function showGuides(method, url, data){
+            getGrim(method, url, data);
         }
-
-        function setPick(name){
-            $('#seth2').fadeOut(delay);
-            $('#cardh2').fadeOut(delay);
-            $(".carddiv").fadeOut(delay);
-            $(".cardView").fadeOut(delay);
-            $(".set").animate({zoom:"0.8"});
-            $card.fadeIn(delay);
-            $n = $("#"+name.id+"Div");
-            $(".collectionHead").animate({fontSize:"0"});
-            $(".setHead").animate({fontSize:"24"});
-            setTimeout(function() {
-                $(".card").css("zoom","1.2");
-                $n.fadeIn(delay);
-                $('#cardh2').fadeIn(delay);
-            }, delay+100);
-
+        function updateGuide(id, body, link){
+            guideData = JSON.stringify({"card": id, "body": body, "link": link});
+            url = "guide";
+            getGrim("POST", url, guideData);
         }
-
-        function cardPick(name){
-            $('#cardh2').fadeOut(delay);
-            $('.cardView').fadeOut(delay);
-            $(".card").animate({zoom:"0.8"});
-            $viewCard.fadeIn(delay);
-            $n = $("#"+name+"Wrap");
-            $(".setHead").animate({fontSize:"0"});
-            setTimeout(function() {
-                $n.fadeIn(delay);
-            }, delay+100);
-        }
-        */
-
     </script>
 </body>
 </html>

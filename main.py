@@ -1,11 +1,20 @@
 import webapp2
 import urllib2
 import json
-import logging
+import re
+import datetime
 from uuid import uuid4
 from api_data import *
 from google.appengine.ext import ndb
 from google.appengine.api import users
+
+
+class TimeEncoder(json.JSONEncoder):
+    def default(self, obj):
+        if isinstance(obj, datetime.datetime):
+            return obj.strftime('%d/%m/%Y %H:%M')
+        elif isinstance(obj, datetime.date):
+            return obj.strftime('%d/%m/%Y')
 
 
 class Manifest(ndb.Model):
@@ -47,25 +56,40 @@ class Card(ndb.Model):
     order = ndb.IntegerProperty()
 
 
-class Gamer(ndb.Model):
+class User(ndb.Model):
     userid = ndb.StringProperty(required=True)
     name = ndb.StringProperty(required=True)
     email = ndb.StringProperty(required=True)
     index = ndb.StringProperty(required=True)
     gamertag = ndb.StringProperty()
-    platform = ndb.IntegerProperty()
+    platform = ndb.StringProperty()
     joined = ndb.DateTimeProperty(auto_now_add=True, indexed=False)
+
+    def tojson(self):
+        return '{"user": "%s",' \
+               '"name": "%s",' \
+               '"email": "%s",' \
+               '"gamertag": "%s",' \
+               '"platform": "%s",' \
+               '"joined": "%s"}' % (self.userid,
+                                    self.name,
+                                    self.email,
+                                    self.gamertag,
+                                    self.platform,
+                                    self.joined.strftime("%d/%m/%Y"))
 
 
 class Guide(ndb.Model):
-    user = ndb.KeyProperty(kind=Gamer, required=True)
+    userid = ndb.KeyProperty(kind=User, required=True)
+    cardid = ndb.IntegerProperty(required=True)
     content = ndb.StringProperty()
+    gid = ndb.StringProperty()
     youtube = ndb.StringProperty()
     created = ndb.DateTimeProperty(auto_now_add=True, required=True)
 
 
 class Rate(ndb.Model):
-    user = ndb.KeyProperty(kind=Gamer, required=True)
+    user = ndb.KeyProperty(kind=User, required=True)
     guide = ndb.KeyProperty(kind=Guide, required=True)
     rating = ndb.BooleanProperty(required=True)
 
@@ -73,9 +97,15 @@ class Rate(ndb.Model):
 class CollectionHandler(webapp2.RequestHandler):
     def get(self):
         collections = Collection.query().fetch()
+        user = users.get_current_user()
+        if not user:
+            current = "NotLoggedIn"
+        else:
+            currentuser = User.get_by_id(user.user_id())
+            current = currentuser.name
         query = [i.to_dict() for i in collections]
-        query = sorted(query,key=lambda k: k.get('order',0))
-        collections_json = json.dumps({"type": "collectionfeed", "data": query})
+        query = sorted(query, key=lambda k: k.get('order', 0))
+        collections_json = json.dumps({"type": "collectionfeed", "name": current, "data": query})
         self.response.write(collections_json)
 
 
@@ -83,7 +113,7 @@ class SetHandler(webapp2.RequestHandler):
     def post(self):
         data = self.request.body
         query = [i.to_dict() for i in Set.query(Set.collection == data).fetch()]
-        query = sorted(query,key=lambda k: k.get('order',0))
+        query = sorted(query, key=lambda k: k.get('order', 0))
         set_json = json.dumps({"type": "setfeed", "set": data, "data": query})
         self.response.write(set_json)
 
@@ -92,7 +122,7 @@ class CardHandler(webapp2.RequestHandler):
     def post(self):
         data = self.request.body
         query = [i.to_dict() for i in Card.query(Card.set == data).fetch()]
-        query = sorted(query,key=lambda k: k.get('order',0))
+        query = sorted(query, key=lambda k: k.get('order', 0))
         card_json = json.dumps({"type": "cardfeed", "card": data, "data": query})
         self.response.write(card_json)
 
@@ -100,11 +130,119 @@ class CardHandler(webapp2.RequestHandler):
 class CardViewHandler(webapp2.RequestHandler):
     def post(self):
         data = int(self.request.body)
-        guides = [{"user": "Username 1", "guide": "Unlock by playing", "url": "http://www.youtube.com"},
-                  {"user": "Username 2", "guide": "Unlock by playin", "url": "http://www.youtube.com"},
-                  {"user": "Username 3", "guide": "I dunno", "url": "http://www.youtube.com"}]
-        card_json = json.dumps({"type": "guides", "card": data, "data": guides})
-        self.response.write(card_json)
+        guides = Guide.query(Guide.cardid == data).fetch()
+        guidelist = []
+        currentuser = users.get_current_user()
+        if currentuser:
+            username = users.get_current_user().user_id()
+        else:
+            username = "NotAUser"
+        for guide in guides:
+            if guide.userid.get().userid == username:
+                current = "true"
+            else:
+                current = "false"
+            name = guide.userid.get().name
+            response = {
+                'user': name,
+                'content': guide.content,
+                'youtube': guide.youtube,
+                'created': guide.created.strftime("%H:%M %d/%m/%Y"),
+                'id': guide.gid,
+                'current': current
+            }
+            guidelist.append(response)
+        self.response.write(json.dumps(guidelist))
+
+
+class LoginHandler(webapp2.RequestHandler):
+    def get(self):
+        currentuser = users.get_current_user()
+        if currentuser:
+            find = User.query(User.userid == currentuser.user_id()).fetch()
+            if find:
+                user = users.get_current_user().user_id()
+                callback = self.request.get("callback")
+                self.request.headers["Content-Type"] = 'application/json'
+                current = User.query(User.userid == user)
+                sresponse = ""
+                jsonop = None
+                for user in current:
+                    sresponse += user.tojson()
+                    if callback is '':
+                        jsonop = sresponse
+                    else:
+                        jsonop = callback+"("+sresponse+")"
+                self.response.write(jsonop)
+            else:
+                guid = str(uuid4())
+                user = User(userid=currentuser.user_id(),
+                            email=currentuser.email(),
+                            name=guid,
+                            index=guid.lower())
+                user.key = ndb.Key(User, currentuser.user_id())
+                user.put()
+        else:
+            self.redirect(users.create_login_url('/loggedin'))
+
+
+class LogoutHandler(webapp2.RequestHandler):
+    def post(self):
+        self.redirect(users.create_logout_url('/'))
+
+
+class UpdateHandler(webapp2.RequestHandler):
+    def post(self):
+        data = json.loads(self.request.body)
+        name = data["name"]
+        gamertag = data["gamertag"]
+        platform = data["platform"]
+        min_len = 4
+        max_len = 15
+        pattern = r"^(?i)[a-z0-9_-]{%s,%s}$" % (min_len, max_len)
+        user = users.get_current_user().user_id()
+        currentuser = User.get_by_id(user)
+        checkavail = User.query(User.index == name.lower()).fetch()
+        if checkavail:
+            currentuser.gamertag = gamertag
+            currentuser.platform = platform
+            currentuser.put()
+            stat = "userexists"
+            msg = "Profile updated, except Username (already in use)."
+            usr = currentuser.name
+        else:
+            if re.match(pattern, name):  # regular expression to ensure that the username entered is valid
+                currentuser.name = name
+                currentuser.index = name.lower()
+                currentuser.platform = platform
+                currentuser.gamertag = gamertag
+                currentuser.put()
+                stat = "updated"
+                msg = "Profile updated successfully."
+                usr = name
+            else:
+                stat = "failed"
+                msg = "Please check the details you inputted."
+                usr = currentuser.name
+        status = json.dumps({"status": stat, "msg": msg, "user": usr})
+        self.response.write(status)
+
+
+class GuideHandler(webapp2.RedirectHandler):
+    def post(self):
+        data = json.loads(self.request.body)
+        cardid = data["card"]
+        guide = data["body"]
+        url = data["link"]
+        user = users.get_current_user().user_id()
+        userid = ndb.Key(User, user)
+        ident = "G"+str(cardid) + str(user)
+        guideobj = Guide(gid=ident, userid=userid, cardid=cardid, content=guide, youtube=url)
+        guideobj.key = ndb.Key(Guide, ident)
+        guideobj.put()
+        stat = "Guide Saved"
+        status = json.dumps({"status": stat})
+        self.response.write(status)
 
 
 class ManifestCollectionHandler(webapp2.RequestHandler):
@@ -244,7 +382,7 @@ def populatecards(self):
                     caquote = ca['cardIntro']
                 card1 = Card(set=setid, id=caid, cardid=caid, name=caname, quote=caquote, body=cabody, icon=caicon,
                              iconx=caix, icony=caiy, img=caimg, x=cax, y=cay, order=order)
-                card1.key = ndb.Key(Card, caid)
+                card1.key = ndb.Key(Card, str(caid))
                 card1.put()
                 order += 1
 
@@ -256,5 +394,9 @@ app = webapp2.WSGIApplication([
     ('/getcollections', ManifestCollectionHandler),
     ('/getsets', ManifestSetHandler),
     ('/getcards', ManifestCardHandler),
-    ('/cardview', CardViewHandler)
+    ('/cardview', CardViewHandler),
+    ('/login', LoginHandler),
+    ('/logout', LogoutHandler),
+    ('/guide', GuideHandler),
+    ('/update', UpdateHandler)
 ], debug=True)

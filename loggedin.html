@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>User Logged In</title>
+    <script src="js/jquery-1.12.1.js"></script>
+    <script src="js/url.js"></script>
+    <link href="css/style.css" rel="stylesheet">
+</head>
+<body onload="loggedIn()">
+    <div id="wrapper" style="margin-top: 80px;">
+        <div id="nav">
+            <div id="navTitle">Grimoire Guide</div>
+
+            <div id="navLogout" class="tooltip">
+                Logout
+                <div class="tooltiptext">Click to logout</div>
+            </div>
+            <div id="userDisplay">&nbsp;</div>
+        </div>
+        <div id="welcomepane">
+
+        </div>
+    </div>
+    <script>
+        $('#navTitle').click(function(){
+            window.location = $url;
+        });
+        $('#navLogout').click(function() {
+            $.ajax({
+                type: "POST",
+                url: $url + "logout",
+                async: true,
+                contentType: "application/json",
+                dataType: 'json',
+                success: function (json) {
+                    console.log(json);
+                },
+                error: function (e) {
+                    console.log(e);
+                    window.location.href = $url;
+                }
+            });
+        });
+        $welcomepane = $('#welcomepane');
+        $welcome1 = 'Welcome ';
+        $welcome2 = '<br><br>Check out the <a href="'+$url+'">Grimoire</a> page or update your <a href="'+$url+'profile'+'">Profile</a>';
+        function loggedIn(){
+            $.ajax({
+                type: "GET",
+                url: $url + "login",
+                async: true,
+                contentType: "application/json",
+                dataType: 'json',
+                success: function (json) {
+                    $welcomepane.append($welcome1 + json.name + $welcome2);
+                    $('#navLogout').css("visibility", "visible");
+                },
+                error: function(e) {
+                    console.log(e);
+                    if(e.status === 200) {
+                        loggedIn();
+                        console.log('200');
+                        location.reload();
+                    }
+                    else{
+                        console.log('fail')
+                    }
+                }
+            });
+        }
+    </script>
+</body>
+</html>
