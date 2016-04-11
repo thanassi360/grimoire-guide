@@ -23,7 +23,6 @@
         </div>
     </div>
     <script>
-
         $(document).ready( function() {
             $('body').on('click', 'button[name=update-user]', function () {
                 var newName = $("#userName").val();
@@ -40,22 +39,26 @@
                 }
             });
         });
-
         $('#navTitle').click(function(){
-            window.location = $url
+            window.location = $url;
         });
         $('#navLogout').click(function(){
-            var cookies = document.cookie.split(";");
-            for(var i=0; i < cookies.length; i++) {
-                var equals = cookies[i].indexOf("=");
-                var name = equals > -1 ? cookies[i].substr(0, equals) : cookies[i];
-                document.cookie = name + "=;expires=Thu, 01 Jan 1970 00:00:00 GMT";
-            }
-            window.location.href = $url;
+            $.ajax({
+                type: "POST",
+                url: $url + "logout",
+                async: true,
+                contentType: "application/json",
+                dataType: 'json',
+                success: function(json) {
+                    console.log(json);
+                },
+                error: function(e) {
+                    console.log(e);
+                    window.location.href = $url;
+                }
+            });
         });
-
         $userpane = $('#userpane');
-
         function profilePage(){
             $.ajax({
                 type: "GET",
@@ -65,14 +68,12 @@
                 dataType: 'json',
                 success: function(json) {
                     userForm(json);
-                    console.log(json);
                 },
                 error: function(e) {
                     console.log(e);
                 }
             });
         }
-
         function userForm(data){
             $userpane.append('<form onsubmit="updateUser()" id="updateUserForm"><table id="userTable">' +
                     '<tr><td>Username: </td><td><input type="text" id="userName" min="4" max="15" value="'+ data.name +'"></td><td>(<i>4 to 15 characters</i>)</td></tr>' +
@@ -85,7 +86,6 @@
             $('#userPlatform option[value='+ data.platform +']').attr('selected', 'selected');
             $('#userDisplay').empty().append(data.name);
         }
-
         function updateUser(newName, newGamertag, newPlatform){
             data = JSON.stringify({"name": newName, "gamertag": newGamertag, "platform": newPlatform});
             $.ajax({
@@ -98,7 +98,6 @@
                 success: function(data) {
                     $("#confirmation").empty().append('<a id="confText">'+data.msg+'</a>');
                     $('#userDisplay').empty().append(data.user);
-
                 },
                 error: function(e) {
                     console.log(e);

@@ -171,7 +171,6 @@ class LoginHandler(webapp2.RequestHandler):
                     sresponse += user.tojson()
                     if callback is '':
                         jsonop = sresponse
-
                     else:
                         jsonop = callback+"("+sresponse+")"
                 self.response.write(jsonop)
@@ -185,6 +184,11 @@ class LoginHandler(webapp2.RequestHandler):
                 user.put()
         else:
             self.redirect(users.create_login_url('/loggedin'))
+
+
+class LogoutHandler(webapp2.RequestHandler):
+    def post(self):
+        self.redirect(users.create_logout_url('/'))
 
 
 class UpdateHandler(webapp2.RequestHandler):
@@ -392,6 +396,7 @@ app = webapp2.WSGIApplication([
     ('/getcards', ManifestCardHandler),
     ('/cardview', CardViewHandler),
     ('/login', LoginHandler),
+    ('/logout', LogoutHandler),
     ('/guide', GuideHandler),
     ('/update', UpdateHandler)
 ], debug=True)

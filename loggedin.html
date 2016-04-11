@@ -26,21 +26,25 @@
         $('#navTitle').click(function(){
             window.location = $url;
         });
-
-        $('#navLogout').click(function(){
-            var cookies = document.cookie.split(";");
-            for(var i=0; i < cookies.length; i++) {
-                var equals = cookies[i].indexOf("=");
-                var name = equals > -1 ? cookies[i].substr(0, equals) : cookies[i];
-                document.cookie = name + "=;expires=Thu, 01 Jan 1970 00:00:00 GMT";
-            }
-            window.location.href = $url;
+        $('#navLogout').click(function() {
+            $.ajax({
+                type: "POST",
+                url: $url + "logout",
+                async: true,
+                contentType: "application/json",
+                dataType: 'json',
+                success: function (json) {
+                    console.log(json);
+                },
+                error: function (e) {
+                    console.log(e);
+                    window.location.href = $url;
+                }
+            });
         });
-
         $welcomepane = $('#welcomepane');
         $welcome1 = 'Welcome ';
         $welcome2 = '<br><br>Check out the <a href="'+$url+'">Grimoire</a> page or update your <a href="'+$url+'profile'+'">Profile</a>';
-
         function loggedIn(){
             $.ajax({
                 type: "GET",
@@ -48,13 +52,13 @@
                 async: true,
                 contentType: "application/json",
                 dataType: 'json',
-                success: function(json) {
-                    $welcomepane.append($welcome1+json.name+$welcome2);
-                    $('#navLogout').css("visibility","visible");
+                success: function (json) {
+                    $welcomepane.append($welcome1 + json.name + $welcome2);
+                    $('#navLogout').css("visibility", "visible");
                 },
                 error: function(e) {
                     console.log(e);
-                    if(e.status === 200){
+                    if(e.status === 200) {
                         loggedIn();
                         console.log('200');
                         location.reload();
@@ -65,8 +69,6 @@
                 }
             });
         }
-
-
     </script>
 </body>
 </html>
