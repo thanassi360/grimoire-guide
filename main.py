@@ -9,7 +9,7 @@ from google.appengine.ext import ndb
 from google.appengine.api import users
 
 
-class TimeEncoder(json.JSONEncoder):
+class TimeEncoder(json.JSONEncoder):  # Defines time format
     def default(self, obj):
         if isinstance(obj, datetime.datetime):
             return obj.strftime('%d/%m/%Y %H:%M')
@@ -17,12 +17,12 @@ class TimeEncoder(json.JSONEncoder):
             return obj.strftime('%d/%m/%Y')
 
 
-class Manifest(ndb.Model):
+class Manifest(ndb.Model):  # Defines Manifest entities
     version = ndb.StringProperty(required=True)
     checked = ndb.DateTimeProperty(auto_now=True, required=True)
 
 
-class Collection(ndb.Model):
+class Collection(ndb.Model):  # Defines Collection entities
     name = ndb.StringProperty()
     img = ndb.StringProperty()
     x = ndb.IntegerProperty()
@@ -30,7 +30,7 @@ class Collection(ndb.Model):
     order = ndb.IntegerProperty()
 
 
-class Set(ndb.Model):
+class Set(ndb.Model):  # Defines Set entities
     collection = ndb.StringProperty()
     shortname = ndb.StringProperty()
     name = ndb.StringProperty()
@@ -40,7 +40,7 @@ class Set(ndb.Model):
     order = ndb.IntegerProperty()
 
 
-class Card(ndb.Model):
+class Card(ndb.Model):  # Defines Card entities
     set = ndb.StringProperty()
     cardid = ndb.IntegerProperty()
     id = ndb.IntegerProperty()
@@ -56,7 +56,7 @@ class Card(ndb.Model):
     order = ndb.IntegerProperty()
 
 
-class User(ndb.Model):
+class User(ndb.Model):  # Defines User entities
     userid = ndb.StringProperty(required=True)
     name = ndb.StringProperty(required=True)
     email = ndb.StringProperty(required=True)
@@ -79,7 +79,7 @@ class User(ndb.Model):
                                     self.joined.strftime("%d/%m/%Y"))
 
 
-class Guide(ndb.Model):
+class Guide(ndb.Model):  # Defines Guide entities
     userid = ndb.KeyProperty(kind=User, required=True)
     cardid = ndb.IntegerProperty(required=True)
     content = ndb.StringProperty()
@@ -88,13 +88,7 @@ class Guide(ndb.Model):
     created = ndb.DateTimeProperty(auto_now_add=True, required=True)
 
 
-class Rate(ndb.Model):
-    user = ndb.KeyProperty(kind=User, required=True)
-    guide = ndb.KeyProperty(kind=Guide, required=True)
-    rating = ndb.BooleanProperty(required=True)
-
-
-class CollectionHandler(webapp2.RequestHandler):
+class CollectionHandler(webapp2.RequestHandler):  # Checks user and gets collection data
     def get(self):
         collections = Collection.query().fetch()
         user = users.get_current_user()
@@ -109,7 +103,7 @@ class CollectionHandler(webapp2.RequestHandler):
         self.response.write(collections_json)
 
 
-class SetHandler(webapp2.RequestHandler):
+class SetHandler(webapp2.RequestHandler):  # Gets set data
     def post(self):
         data = self.request.body
         query = [i.to_dict() for i in Set.query(Set.collection == data).fetch()]
@@ -118,7 +112,7 @@ class SetHandler(webapp2.RequestHandler):
         self.response.write(set_json)
 
 
-class CardHandler(webapp2.RequestHandler):
+class CardHandler(webapp2.RequestHandler):  # Gets card data
     def post(self):
         data = self.request.body
         query = [i.to_dict() for i in Card.query(Card.set == data).fetch()]
@@ -127,7 +121,7 @@ class CardHandler(webapp2.RequestHandler):
         self.response.write(card_json)
 
 
-class CardViewHandler(webapp2.RequestHandler):
+class CardViewHandler(webapp2.RequestHandler):  # Gets guide data for a card
     def post(self):
         data = int(self.request.body)
         guides = Guide.query(Guide.cardid == data).fetch()
@@ -155,7 +149,7 @@ class CardViewHandler(webapp2.RequestHandler):
         self.response.write(json.dumps(guidelist))
 
 
-class LoginHandler(webapp2.RequestHandler):
+class LoginHandler(webapp2.RequestHandler):  # Logs a user in or registers new user
     def get(self):
         currentuser = users.get_current_user()
         if currentuser:
@@ -186,12 +180,12 @@ class LoginHandler(webapp2.RequestHandler):
             self.redirect(users.create_login_url('/loggedin'))
 
 
-class LogoutHandler(webapp2.RequestHandler):
+class LogoutHandler(webapp2.RequestHandler):  # Logs user out
     def post(self):
         self.redirect(users.create_logout_url('/'))
 
 
-class UpdateHandler(webapp2.RequestHandler):
+class UpdateHandler(webapp2.RequestHandler):  # Updates users details
     def post(self):
         data = json.loads(self.request.body)
         name = data["name"]
@@ -228,7 +222,7 @@ class UpdateHandler(webapp2.RequestHandler):
         self.response.write(status)
 
 
-class GuideHandler(webapp2.RedirectHandler):
+class GuideHandler(webapp2.RedirectHandler):  # Saves users guide for a card
     def post(self):
         data = json.loads(self.request.body)
         cardid = data["card"]
@@ -245,7 +239,7 @@ class GuideHandler(webapp2.RedirectHandler):
         self.response.write(status)
 
 
-class ManifestCollectionHandler(webapp2.RequestHandler):
+class ManifestCollectionHandler(webapp2.RequestHandler):  # Cron jobs is set to check Bungie.net DB version for Collections
     def get(self):
         request = urllib2.Request(mani, headers={"x-api-key": api_key})
         doc = urllib2.urlopen(request).read()
@@ -270,7 +264,7 @@ class ManifestCollectionHandler(webapp2.RequestHandler):
         manifest_data.put()                                             # 8 writes version (updates checked date)
 
 
-class ManifestSetHandler(webapp2.RequestHandler):
+class ManifestSetHandler(webapp2.RequestHandler):  # Cron jobs is set to check Bungie.net DB version for Sets
     def get(self):
         request = urllib2.Request(mani, headers={"x-api-key": api_key})
         doc = urllib2.urlopen(request).read()
@@ -295,7 +289,7 @@ class ManifestSetHandler(webapp2.RequestHandler):
         manifest_data.put()                                             # 8 writes version (updates checked date)
 
 
-class ManifestCardHandler(webapp2.RequestHandler):
+class ManifestCardHandler(webapp2.RequestHandler):  # Cron jobs is set to check Bungie.net DB version for Cards
     def get(self):
         request = urllib2.Request(mani, headers={"x-api-key": api_key})
         doc = urllib2.urlopen(request).read()
@@ -320,7 +314,7 @@ class ManifestCardHandler(webapp2.RequestHandler):
         manifest_data.put()                                             # 8 writes version (updates checked date)
 
 
-def populatecollections(self):
+def populatecollections(self):  # Populates Collections
     request = urllib2.Request(self, headers={"x-api-key": api_key})
     doc = urllib2.urlopen(request).read()
     json_object = json.loads(doc)
@@ -337,7 +331,7 @@ def populatecollections(self):
         order += 1
 
 
-def populatesets(self):
+def populatesets(self):  # Populates Sets
     request = urllib2.Request(self, headers={"x-api-key": api_key})
     doc = urllib2.urlopen(request).read()
     json_object = json.loads(doc)
@@ -357,7 +351,7 @@ def populatesets(self):
             order += 1
 
 
-def populatecards(self):
+def populatecards(self):  # Populates Cards
     request = urllib2.Request(self, headers={"x-api-key": api_key})
     doc = urllib2.urlopen(request).read()
     json_object = json.loads(doc)

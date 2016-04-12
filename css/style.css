@@ -1,17 +1,13 @@
 body{
-    background-image: url('../images/traveler.jpg');
-    background-position: 20% 15%;
+    background-color: #3C4F79;
     font-family: sans-serif;
-    background-attachment: fixed;
 }
 #wrapper{
     margin:auto;
     width:1000px;
-    min-height: 1000px;
 }
 h2{
-    margin:0;
-    margin-bottom: 10px;
+    margin:0 0 10px 0;
     color: white;
 }
 #collection, #set, #card{
@@ -95,10 +91,10 @@ h2{
     visibility: visible;
 }
 #nav{
-    width: 1050px;
+    width: 1000px;
     height: 55px;
     color: white;
-    margin-left: -25px;
+    margin: auto;
     background: black;
     top: 0;
     position: fixed;
@@ -114,7 +110,7 @@ h2{
 #navLogin{
     visibility: hidden;
 }
-#navLogin, #navLogout{
+#navLogin, #navLogout, #survey, #home{
     display: inline-block;
     float: right;
     font-size: 23px;
@@ -124,6 +120,11 @@ h2{
 #navLogin .tooltiptext, #navLogout .tooltiptext{
     left: 95%;
     font-size: 17px;
+}
+#survey{
+    font-size: 20px;
+    width: 75px;
+    padding: 5px 20px 5px 20px;
 }
 #colh2, #seth2, #cardh2{
     width: 100%;
@@ -135,7 +136,7 @@ h2{
     font-style: italic;
     font-weight: bold;
 }
-#userDisplay{
+#userDisplay, #navLogout{
     display: inline-block;
     float: right;
     font-size: 25px;
@@ -143,7 +144,12 @@ h2{
     padding: 13px 20px 13px 20px;
     visibility: hidden;
 }
-#userpane, #welcomepane{
+#userDisplay{
+    max-width: 285px;
+    max-height: 29px;
+    overflow: hidden;
+}
+#userpane, #welcomepane, #evalpane{
     background-color: aliceblue;
     padding: 20px;
 }
@@ -159,4 +165,7 @@ input, textarea{
 .pleaseLogIn{
     width: 100%;
     text-align: center;
+}
+span.highlight {
+    background-color: #DAFAFF;
 }

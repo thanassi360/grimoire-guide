@@ -11,17 +11,15 @@
     <div id="wrapper">
         <div id="nav">
             <div id="navTitle">Grimoire Guide</div>
-            <div id="navLogin" class="tooltip">&nbsp;</div>
+            <div id="survey">Click to evaluate</div>
+            <div id="navLogin">&nbsp;</div>
+            <div id="navLogout">&nbsp;</div>
             <div id="userDisplay">&nbsp;</div>
         </div>
-        <div id="collection">
-        </div>
-        <div id="set">
-        </div>
-        <div id="card">
-        </div>
-        <div id="viewCard">
-        </div>
+        <div id="collection"></div>
+        <div id="set"></div>
+        <div id="card"></div>
+        <div id="viewCard"></div>
     </div>
     <script>
         $bungie = "https://www.bungie.net";
@@ -39,6 +37,26 @@
         $currentcardid = '';
         $('#navLogin').click(function(){
             window.location = $url+log
+        });
+        $('#navLogout').click(function(){
+            $.ajax({
+                type: "POST",
+                url: $url + "logout",
+                async: true,
+                contentType: "application/json",
+                dataType: 'json',
+                success: function(json) {
+                    console.log(json);
+                },
+                error: function(e) {
+                    console.log(e);
+                    window.location.href = $url;
+                }
+            });
+        });
+        $('#survey').click(function () {
+            var URL = 'https://www.surveymonkey.co.uk/r/QF8BQHS';
+            window.open(URL,'_blank');
         });
         $('body').on('click', 'button[name=update-guide]', function () {
             var guide = $("#guideBody").val();
@@ -75,13 +93,14 @@
         function display(data){
             if(data.type == 'collectionfeed'){
                 if(data.name == 'NotLoggedIn'){
-                    $('#navLogin').empty().append('Join/Login<div class="tooltiptext">Click to login</div>').css("visibility","visible");
+                    $('#navLogin').empty().append('Join/Login').css("visibility","visible");
                     $username = 'NotUser';
                     log = "login";
                 }
                 else{
-                    $('#navLogin').empty().append('Edit Profile<div class="tooltiptext">Click to edit profile</div>').css("visibility","visible");
+                    $('#navLogin').empty().append('Edit Profile').css("visibility","visible");
                     $('#userDisplay').empty().append(data.name).css("visibility","visible");
+                    $('#navLogout').empty().append("Logout").css("visibility","visible");
                     $username = data.name;
                     log = "profile";
                 }
@@ -149,13 +168,14 @@
                 if($username != 'NotUser'){
                     form = '<div><form><table><tr><td>Card: </td><td>'+ $currentcard +'</td></tr>' +
                             '<tr><td>Guide: </td><td><textarea id="guideBody"></textarea></td></tr>' +
-                            '<tr><td>https://youtu.be/</td><td><input type="url" placeholder="YouTube video code" id="guideLink"></td><td><i>eg: w_eAS1RiJk4 (optional)</i></td></tr>' +
+                            '<tr><td>https://youtu.be/</td><td><input type="url" placeholder="(optional)" id="guideLink"></td><td>' +
+                            '<i>The code after the "=" in the web address, <br>eg: w_eAS1RiJk4 for www.youtube.com/watch?v=<span class="highlight">w_eAS1RiJk4</span></i></td></tr>' +
                             '<tr><td>Submit/Update</td><td><button type="button" name="update-guide">Send</button><button type="reset">Reset</button></td><td id="confirmation"></td></tr>' +
                             '</table></form></div>';
                     $('#cardGuide').append(form+'<hr>');
                 }
                 else{
-                    $('#cardGuide').append('<div class="pleaseLogIn"><b>Login or register to leave or rate a guide</b></div><br><hr>');
+                    $('#cardGuide').append('<div class="pleaseLogIn"><b>Login or register to leave a guide</b></div><br><hr>');
                 }
                 $.each($guidedata, function(k,v){
                     if(v.current == "true"){
