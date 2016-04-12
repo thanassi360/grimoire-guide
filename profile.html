@@ -11,16 +11,12 @@
     <div id="wrapper" style="margin-top: 80px;">
         <div id="nav">
             <div id="navTitle">Grimoire Guide</div>
-
-            <div id="navLogout" class="tooltip">
-                Logout
-                <div class="tooltiptext">Click to logout</div>
-            </div>
+            <div id="survey">Click to evaluate</div>
+            <div id="navLogout">Logout</div>
+            <div id="home">Home</div>
             <div id="userDisplay">&nbsp;</div>
         </div>
-        <div id="userpane">
-
-        </div>
+        <div id="userpane"></div>
     </div>
     <script>
         $(document).ready( function() {
@@ -39,7 +35,7 @@
                 }
             });
         });
-        $('#navTitle').click(function(){
+        $('#home').click(function(){
             window.location = $url;
         });
         $('#navLogout').click(function(){
@@ -57,6 +53,10 @@
                     window.location.href = $url;
                 }
             });
+        });
+        $('#survey').click(function () {
+            var URL = 'https://www.surveymonkey.co.uk/r/QF8BQHS';
+            window.open(URL,'_blank');
         });
         $userpane = $('#userpane');
         function profilePage(){
@@ -84,7 +84,8 @@
                     '<tr><td>Update: </td><td><button name="update-user" type="button">Confirm</button></td><td id="confirmation"></td></tr>' +
                     '</table></form>');
             $('#userPlatform option[value='+ data.platform +']').attr('selected', 'selected');
-            $('#userDisplay').empty().append(data.name);
+            $('#userDisplay').empty().append(data.name).css("visibility","visible");
+            $('#navLogout').css("visibility","visible");
         }
         function updateUser(newName, newGamertag, newPlatform){
             data = JSON.stringify({"name": newName, "gamertag": newGamertag, "platform": newPlatform});

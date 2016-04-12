@@ -11,19 +11,15 @@
     <div id="wrapper" style="margin-top: 80px;">
         <div id="nav">
             <div id="navTitle">Grimoire Guide</div>
-
-            <div id="navLogout" class="tooltip">
-                Logout
-                <div class="tooltiptext">Click to logout</div>
-            </div>
-            <div id="userDisplay">&nbsp;</div>
+            <div id="survey">Click to evaluate</div>
+            <div id="navLogin">Edit Profile</div>
+            <div id="navLogout">Logout</div>
+            <div id="home">Home</div>
         </div>
-        <div id="welcomepane">
-
-        </div>
+        <div id="welcomepane"></div>
     </div>
     <script>
-        $('#navTitle').click(function(){
+        $('#home').click(function(){
             window.location = $url;
         });
         $('#navLogout').click(function() {
@@ -42,9 +38,19 @@
                 }
             });
         });
+        $('#survey').click(function () {
+            var URL = 'https://www.surveymonkey.co.uk/r/QF8BQHS';
+            window.open(URL,'_blank');
+        });
+        $('#navLogin').click(function(){
+            window.location = $url+"profile"
+        });
         $welcomepane = $('#welcomepane');
         $welcome1 = 'Welcome ';
-        $welcome2 = '<br><br>Check out the <a href="'+$url+'">Grimoire</a> page or update your <a href="'+$url+'profile'+'">Profile</a>';
+        $welcome2 = '<br><br><i style="font-size: 20px;">When you login for the first time, a random username is generated which will look something like ' +
+                '"XXXXXXXX-XXXX-XXXX-XXXX-XXXXXXXXXXXX". <br><br>You can update your username on the profile page by clicking the Edit Profile button above. ' +
+                'You can navigate back to the Grimoire page at any time by clicking the Home button and log out by clicking the Logout Button. ' +
+                '<br><br>As this is a beta test, please take a couple of minutes to give some valuable feedback by clicking the Click To Evaluate button.</i>';
         function loggedIn(){
             $.ajax({
                 type: "GET",
@@ -55,6 +61,7 @@
                 success: function (json) {
                     $welcomepane.append($welcome1 + json.name + $welcome2);
                     $('#navLogout').css("visibility", "visible");
+                    $('#navLogin').css("visibility", "visible");
                 },
                 error: function(e) {
                     console.log(e);
