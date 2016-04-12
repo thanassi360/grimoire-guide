@@ -14,4 +14,3 @@ A University project using an API to synchronise data from Bungie.net to a Googl
   - [ ] Allow users to like/dislike guides
   - [ ] Order guides by popularity
 - Final Build
-  - [ ] Testing and evaluation
