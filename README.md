@@ -12,7 +12,7 @@ This version has:
 #### Beta build features
 - Visitors to the site can sign in with a google account.
 - A GUID string is generated for the visitor, which they can change for a unique user ID.
-- Profile page allows the registered user to change their name, add a gamertag and game platform (can be used to search gamer profile for Grimoire stats from Bungie.net)
+- Profile page allows the registered user to change their name, add a gamertag and game platform (can be used to search gamer profile for Grimoire stats from Bungie.net).
 - A registered user can write guides for individual Grimoire cards (1 per card) with a youtube link attached. 
 - Any user or visitor can view the guides.
 - User can edit/update their guides.
